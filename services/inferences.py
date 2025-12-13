@@ -39,10 +39,16 @@ def run_detection(image):
       ...
     ]
     """
-    try:
-        return detect_objects(image)
-    except RuntimeError as e:
-        return {"error": str(e)}
+#     try:
+#         return detect_objects(image)
+#     except RuntimeError as e:
+#         return {"error": str(e)}
+
+# from services.remote_detection import detect_objects
+
+# def run_detection(image):
+    return detect_objects(image)
+
 
 
 # from models.resnet_model import classify_resnet
