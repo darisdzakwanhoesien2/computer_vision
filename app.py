@@ -1,6 +1,6 @@
 import streamlit as st
 from PIL import Image
-from services.inference import run_classification
+from services.inferences import run_classification
 
 st.set_page_config(
     page_title="Image Classification",
