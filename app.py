@@ -43,6 +43,52 @@ st.subheader("🏷️ Classification Results")
 for r in results:
     st.write(f"**{r['label']}** — {r['confidence']:.3f}")
 
+
+# import streamlit as st
+# from PIL import Image
+# from services.inferences import run_classification
+
+# st.set_page_config(
+#     page_title="Image Classification",
+#     layout="wide"
+# )
+
+# st.title("🖼️ Image Classification (Python 3.13 Safe)")
+# st.caption("ResNet50 & EfficientNet — Streamlit Cloud Compatible")
+
+# # Sidebar
+# st.sidebar.header("⚙️ Settings")
+
+# model_choice = st.sidebar.radio(
+#     "Select Model",
+#     ["resnet", "efficientnet"],
+#     format_func=lambda x: "ResNet50" if x == "resnet" else "EfficientNet-B0"
+# )
+
+# topk = st.sidebar.slider("Top-K Predictions", 1, 10, 5)
+
+# # Upload
+# uploaded_file = st.file_uploader(
+#     "Upload an image",
+#     type=["jpg", "jpeg", "png"]
+# )
+
+# if not uploaded_file:
+#     st.info("Upload an image to start.")
+#     st.stop()
+
+# image = Image.open(uploaded_file).convert("RGB")
+# st.image(image, caption="Uploaded Image", use_column_width=True)
+
+# # Inference
+# results = run_classification(image, model_choice, topk)
+
+# st.markdown("---")
+# st.subheader("🏷️ Classification Results")
+
+# for r in results:
+#     st.write(f"**{r['label']}** — {r['confidence']:.3f}")
+
 # import streamlit as st
 # from PIL import Image
 # from services.inference import run_inference
