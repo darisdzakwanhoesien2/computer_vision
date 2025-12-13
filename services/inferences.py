@@ -11,6 +11,15 @@ def run_classification(image, model_name="resnet", topk=5):
     else:
         raise ValueError("Unknown classification model")
 
+if 'label' in r and 'confidence' in r:
+    try:
+        confidence = float(r['confidence'])
+        st.write(f"**{r['label']}** — {confidence:.3f}")
+    except (ValueError, TypeError):
+        st.error("Confidence value is not a valid number.")
+else:
+    st.error("Invalid classification result format.")
+
 
 # from models.resnet_model import classify_resnet
 # from models.efficientnet_model import classify_efficientnet

@@ -2,6 +2,9 @@ import streamlit as st
 from PIL import Image
 from services.inferences import run_classification
 
+# -------------------------
+# Page config
+# -------------------------
 st.set_page_config(
     page_title="Image Classification",
     layout="wide"
@@ -10,7 +13,9 @@ st.set_page_config(
 st.title("🖼️ Image Classification (Python 3.13 Safe)")
 st.caption("ResNet50 & EfficientNet — Streamlit Cloud Compatible")
 
+# -------------------------
 # Sidebar
+# -------------------------
 st.sidebar.header("⚙️ Settings")
 
 model_choice = st.sidebar.radio(
@@ -21,7 +26,9 @@ model_choice = st.sidebar.radio(
 
 topk = st.sidebar.slider("Top-K Predictions", 1, 10, 5)
 
+# -------------------------
 # Upload
+# -------------------------
 uploaded_file = st.file_uploader(
     "Upload an image",
     type=["jpg", "jpeg", "png"]
@@ -34,14 +41,92 @@ if not uploaded_file:
 image = Image.open(uploaded_file).convert("RGB")
 st.image(image, caption="Uploaded Image", use_column_width=True)
 
+# -------------------------
 # Inference
-results = run_classification(image, model_choice, topk)
+# -------------------------
+with st.spinner("Running classification..."):
+    results = run_classification(image, model_choice, topk)
 
+# -------------------------
+# Results rendering
+# -------------------------
 st.markdown("---")
 st.subheader("🏷️ Classification Results")
 
-for r in results:
-    st.write(f"**{r['label']}** — {r['confidence']:.3f}")
+if not isinstance(results, list):
+    st.error("Model returned invalid output format (expected a list).")
+    st.stop()
+
+if len(results) == 0:
+    st.warning("No predictions returned by the model.")
+    st.stop()
+
+for idx, r in enumerate(results, start=1):
+
+    if not isinstance(r, dict):
+        st.error(f"Result #{idx} is not a dictionary: {r}")
+        continue
+
+    label = r.get("label")
+    confidence = r.get("confidence")
+
+    if label is None or confidence is None:
+        st.error(f"Result #{idx} missing required keys: {r}")
+        continue
+
+    try:
+        confidence = float(confidence)
+    except (TypeError, ValueError):
+        st.error(f"Invalid confidence value in result #{idx}: {confidence}")
+        continue
+
+    st.write(f"**{idx}. {label}** — {confidence:.3f}")
+
+
+# import streamlit as st
+# from PIL import Image
+# from services.inferences import run_classification
+
+# st.set_page_config(
+#     page_title="Image Classification",
+#     layout="wide"
+# )
+
+# st.title("🖼️ Image Classification (Python 3.13 Safe)")
+# st.caption("ResNet50 & EfficientNet — Streamlit Cloud Compatible")
+
+# # Sidebar
+# st.sidebar.header("⚙️ Settings")
+
+# model_choice = st.sidebar.radio(
+#     "Select Model",
+#     ["resnet", "efficientnet"],
+#     format_func=lambda x: "ResNet50" if x == "resnet" else "EfficientNet-B0"
+# )
+
+# topk = st.sidebar.slider("Top-K Predictions", 1, 10, 5)
+
+# # Upload
+# uploaded_file = st.file_uploader(
+#     "Upload an image",
+#     type=["jpg", "jpeg", "png"]
+# )
+
+# if not uploaded_file:
+#     st.info("Upload an image to start.")
+#     st.stop()
+
+# image = Image.open(uploaded_file).convert("RGB")
+# st.image(image, caption="Uploaded Image", use_column_width=True)
+
+# # Inference
+# results = run_classification(image, model_choice, topk)
+
+# st.markdown("---")
+# st.subheader("🏷️ Classification Results")
+
+# for r in results:
+#     st.write(f"**{r['label']}** — {r['confidence']:.3f}")
 
 
 # import streamlit as st
