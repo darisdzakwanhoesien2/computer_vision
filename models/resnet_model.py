@@ -14,7 +14,7 @@ def load_resnet():
         _model.eval()
 
         _transform = weights.transforms()
-        _labels = weights.meta["categories"]  # ✅ SAFE SOURCE
+        _labels = weights.meta["categories"]
 
     return _model, _transform, _labels
 
@@ -30,6 +30,7 @@ def classify_resnet(image, topk=5):
 
     values, indices = torch.topk(probs, topk)
 
+    # ✅ ALWAYS return List[Dict]
     results = []
     for idx, score in zip(indices.tolist(), values.tolist()):
         results.append({
@@ -38,43 +39,85 @@ def classify_resnet(image, topk=5):
         })
 
     return results
-import torch
-from torchvision.models import resnet50, ResNet50_Weights
-
-_model = None
-_transform = None
-_labels = None
-
-def load_resnet():
-    global _model, _transform, _labels
-
-    if _model is None:
-        weights = ResNet50_Weights.DEFAULT
-        _model = resnet50(weights=weights)
-        _model.eval()
-
-        _transform = weights.transforms()
-        _labels = weights.meta["categories"]  # ✅ SAFE SOURCE
-
-    return _model, _transform, _labels
 
 
-def classify_resnet(image, topk=5):
-    model, transform, labels = load_resnet()
+# import torch
+# from torchvision.models import resnet50, ResNet50_Weights
 
-    x = transform(image).unsqueeze(0)
+# _model = None
+# _transform = None
+# _labels = None
 
-    with torch.no_grad():
-        logits = model(x)
-        probs = torch.softmax(logits[0], dim=0)
+# def load_resnet():
+#     global _model, _transform, _labels
 
-    values, indices = torch.topk(probs, topk)
+#     if _model is None:
+#         weights = ResNet50_Weights.DEFAULT
+#         _model = resnet50(weights=weights)
+#         _model.eval()
 
-    results = []
-    for idx, score in zip(indices.tolist(), values.tolist()):
-        results.append({
-            "label": labels[idx],
-            "confidence": float(score)
-        })
+#         _transform = weights.transforms()
+#         _labels = weights.meta["categories"]  # ✅ SAFE SOURCE
 
-    return results
+#     return _model, _transform, _labels
+
+
+# def classify_resnet(image, topk=5):
+#     model, transform, labels = load_resnet()
+
+#     x = transform(image).unsqueeze(0)
+
+#     with torch.no_grad():
+#         logits = model(x)
+#         probs = torch.softmax(logits[0], dim=0)
+
+#     values, indices = torch.topk(probs, topk)
+
+#     results = []
+#     for idx, score in zip(indices.tolist(), values.tolist()):
+#         results.append({
+#             "label": labels[idx],
+#             "confidence": float(score)
+#         })
+
+#     return results
+# import torch
+# from torchvision.models import resnet50, ResNet50_Weights
+
+# _model = None
+# _transform = None
+# _labels = None
+
+# def load_resnet():
+#     global _model, _transform, _labels
+
+#     if _model is None:
+#         weights = ResNet50_Weights.DEFAULT
+#         _model = resnet50(weights=weights)
+#         _model.eval()
+
+#         _transform = weights.transforms()
+#         _labels = weights.meta["categories"]  # ✅ SAFE SOURCE
+
+#     return _model, _transform, _labels
+
+
+# def classify_resnet(image, topk=5):
+#     model, transform, labels = load_resnet()
+
+#     x = transform(image).unsqueeze(0)
+
+#     with torch.no_grad():
+#         logits = model(x)
+#         probs = torch.softmax(logits[0], dim=0)
+
+#     values, indices = torch.topk(probs, topk)
+
+#     results = []
+#     for idx, score in zip(indices.tolist(), values.tolist()):
+#         results.append({
+#             "label": labels[idx],
+#             "confidence": float(score)
+#         })
+
+#     return results
