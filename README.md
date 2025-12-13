@@ -1,3 +1,5 @@
+URL: https://chatgpt.com/c/693d3ce6-091c-832a-9c15-6d8b91c4aa64
+
 Excellent choice — **Option A is the correct stepping stone** 👍
 We’ll build a **pure image classification Streamlit app** that:
 
