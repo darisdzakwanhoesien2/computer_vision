@@ -39,8 +39,10 @@ def run_detection(image):
       ...
     ]
     """
-    return detect_objects(image)
-
+    try:
+        return detect_objects(image)
+    except RuntimeError as e:
+        return {"error": str(e)}
 
 
 # from models.resnet_model import classify_resnet

@@ -86,28 +86,158 @@ import streamlit as st
 from PIL import Image
 from services.inferences import run_detection
 from utils.visualization import draw_boxes
+from collections import Counter
 
-st.set_page_config(page_title="Multi-Item Detection", layout="wide")
+# --------------------------------------------------
+# Page config
+# --------------------------------------------------
+st.set_page_config(
+    page_title="Multi-Item Object Detection",
+    layout="wide"
+)
+
 st.title("🖼️ Multi-Item Object Detection")
+st.caption(
+    "Powered by Hugging Face hosted object detection "
+    "(Streamlit Cloud · Python 3.13 safe)"
+)
 
-uploaded = st.file_uploader("Upload image", ["jpg", "jpeg", "png"])
+# --------------------------------------------------
+# Sidebar
+# --------------------------------------------------
+st.sidebar.header("⚙️ Settings")
+
+confidence_threshold = st.sidebar.slider(
+    "Confidence Threshold",
+    min_value=0.1,
+    max_value=0.9,
+    value=0.3,
+    step=0.05
+)
+
+show_boxes = st.sidebar.checkbox("Show bounding boxes", value=True)
+
+# --------------------------------------------------
+# Upload image
+# --------------------------------------------------
+uploaded = st.file_uploader(
+    "Upload an image",
+    type=["jpg", "jpeg", "png"]
+)
+
 if not uploaded:
+    st.info("Please upload an image to start object detection.")
     st.stop()
 
-image = Image.open(uploaded).convert("RGB")
+try:
+    image = Image.open(uploaded).convert("RGB")
+except Exception as e:
+    st.error(f"Failed to load image: {e}")
+    st.stop()
+
 st.image(image, caption="Uploaded Image", use_column_width=True)
 
-with st.spinner("Detecting objects..."):
-    detections = run_detection(image)
+# --------------------------------------------------
+# Run detection
+# --------------------------------------------------
+with st.spinner("Detecting objects (this may take a moment on first run)..."):
+    result = run_detection(image)
 
-annotated = draw_boxes(image.copy(), detections)
+# --------------------------------------------------
+# Handle errors from inference
+# --------------------------------------------------
+if isinstance(result, dict) and "error" in result:
+    st.error(result["error"])
+    st.info(
+        "ℹ️ Hugging Face models may take 10–30 seconds to warm up "
+        "on the first request. Please retry shortly."
+    )
+    st.stop()
 
+if not isinstance(result, list):
+    st.error("Unexpected detection output format.")
+    st.stop()
+
+# --------------------------------------------------
+# Filter detections by confidence
+# --------------------------------------------------
+detections = [
+    d for d in result
+    if isinstance(d, dict)
+    and d.get("confidence", 0) >= confidence_threshold
+]
+
+if len(detections) == 0:
+    st.warning("No objects detected above the selected confidence threshold.")
+    st.stop()
+
+# --------------------------------------------------
+# Visualization
+# --------------------------------------------------
 st.markdown("---")
-st.image(annotated, caption="Detected Objects", use_column_width=True)
 
+if show_boxes:
+    try:
+        annotated = draw_boxes(image.copy(), detections)
+        st.image(
+            annotated,
+            caption="Detected Objects",
+            use_column_width=True
+        )
+    except Exception as e:
+        st.error(f"Failed to draw bounding boxes: {e}")
+
+# --------------------------------------------------
+# Detection summary
+# --------------------------------------------------
 st.subheader("📦 Detected Items")
-for d in detections:
-    st.write(f"**{d['label']}** — {d['confidence']:.2f}")
+
+labels = [d["label"] for d in detections if "label" in d]
+counts = Counter(labels)
+
+for label, count in counts.most_common():
+    st.write(f"**{label}** × {count}")
+
+# --------------------------------------------------
+# Detailed table
+# --------------------------------------------------
+with st.expander("🔍 Detailed detections"):
+    for idx, d in enumerate(detections, start=1):
+        st.write(
+            f"{idx}. **{d['label']}** — "
+            f"{d['confidence']:.2f} | "
+            f"bbox={d['bbox']}"
+        )
+
+
+
+# import streamlit as st
+# from PIL import Image
+# from services.inferences import run_detection
+# from utils.visualization import draw_boxes
+
+# st.set_page_config(page_title="Multi-Item Detection", layout="wide")
+# st.title("🖼️ Multi-Item Object Detection")
+
+# uploaded = st.file_uploader("Upload image", ["jpg", "jpeg", "png"])
+# if not uploaded:
+#     st.stop()
+
+# image = Image.open(uploaded).convert("RGB")
+# st.image(image, caption="Uploaded Image", use_column_width=True)
+
+# with st.spinner("Detecting objects..."):
+#     detections = run_detection(image)
+
+# annotated = draw_boxes(image.copy(), detections)
+
+# st.markdown("---")
+# st.image(annotated, caption="Detected Objects", use_column_width=True)
+
+# st.subheader("📦 Detected Items")
+# for d in detections:
+#     st.write(f"**{d['label']}** — {d['confidence']:.2f}")
+
 
 
 # import streamlit as st
