@@ -84,7 +84,7 @@
 
 import streamlit as st
 from PIL import Image
-from services.inference import run_detection
+from services.inferences import run_detection
 from utils.visualization import draw_boxes
 
 st.set_page_config(page_title="Multi-Item Detection", layout="wide")
