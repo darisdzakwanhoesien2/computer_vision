@@ -2,23 +2,51 @@ from models.resnet_model import classify_resnet
 from models.efficientnet_model import classify_efficientnet
 
 def run_classification(image, model_name="resnet", topk=5):
+    """
+    Runs image classification and returns a list of dicts:
+    [
+        {"label": str, "confidence": float},
+        ...
+    ]
+    """
+
     if model_name == "resnet":
-        return classify_resnet(image, topk)
+        results = classify_resnet(image, topk)
 
     elif model_name == "efficientnet":
-        return classify_efficientnet(image, topk)
+        results = classify_efficientnet(image, topk)
 
     else:
-        raise ValueError("Unknown classification model")
+        raise ValueError(f"Unknown classification model: {model_name}")
 
-if 'label' in r and 'confidence' in r:
-    try:
-        confidence = float(r['confidence'])
-        st.write(f"**{r['label']}** — {confidence:.3f}")
-    except (ValueError, TypeError):
-        st.error("Confidence value is not a valid number.")
-else:
-    st.error("Invalid classification result format.")
+    # 🔒 Contract enforcement (optional but safe)
+    if not isinstance(results, list):
+        raise TypeError("Model did not return a list")
+
+    return results
+
+
+# from models.resnet_model import classify_resnet
+# from models.efficientnet_model import classify_efficientnet
+
+# def run_classification(image, model_name="resnet", topk=5):
+#     if model_name == "resnet":
+#         return classify_resnet(image, topk)
+
+#     elif model_name == "efficientnet":
+#         return classify_efficientnet(image, topk)
+
+#     else:
+#         raise ValueError("Unknown classification model")
+
+# if 'label' in r and 'confidence' in r:
+#     try:
+#         confidence = float(r['confidence'])
+#         st.write(f"**{r['label']}** — {confidence:.3f}")
+#     except (ValueError, TypeError):
+#         st.error("Confidence value is not a valid number.")
+# else:
+#     st.error("Invalid classification result format.")
 
 
 # from models.resnet_model import classify_resnet
