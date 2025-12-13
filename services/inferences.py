@@ -25,6 +25,23 @@ def run_classification(image, model_name="resnet", topk=5):
 
     return results
 
+from services.remote_detection import detect_objects
+
+def run_detection(image):
+    """
+    Returns:
+    [
+      {
+        "label": str,
+        "confidence": float,
+        "bbox": [x1, y1, x2, y2]
+      },
+      ...
+    ]
+    """
+    return detect_objects(image)
+
+
 
 # from models.resnet_model import classify_resnet
 # from models.efficientnet_model import classify_efficientnet
